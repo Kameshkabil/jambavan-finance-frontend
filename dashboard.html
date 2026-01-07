@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" sizes="64x64" href="images/jambavan.jpeg">
+    <title>Jambavan Finance Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
+    <style>
+        /* --- THEME VARIABLES --- */
+        :root {
+            --bg: #f5f7fb;
+            --card: #ffffff;
+            --text: #000;
+            --brand: #06d1e4;
+            --brand-rgb: 6, 214, 228;
+            /* Added for shadow calculations */
+            --secondary-text: #6b7280;
+            --danger: #dc3545;
+            --sidebar-width: 280px;
+            --text-inverse: #fff;
+            /* For text on colored backgrounds */
+        }
+
+        body.dark {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #ffffff;
+            --brand: #22c55e;
+            --brand-rgb: 34, 197, 94;
+            /* Updated for dark mode brand color */
+            --secondary-text: #94a3b8;
+            --danger: #ff6b6b;
+            --text-inverse: #000;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', Arial, sans-serif;
+            transition: 0.3s;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* --- 1. TOP BAR STYLING (Fixed for desired UI) --- */
+        .topbar {
+            background: var(--card);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1050;
+        }
+
+        .brand {
+            font-weight: bold;
+            color: var(--text);
+            font-size: 20px;
+            margin: 0 auto 0 15px;
+            flex-grow: 1;
+        }
+
+        .menu-toggle {
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0 5px;
+            display: block;
+            transition: color 0.3s;
+        }
+
+        .menu-toggle:hover {
+            color: var(--brand);
+        }
+
+        .profile-section {
+            display: flex;
+            align-items: center;
+        }
+
+        /* --- 2. PAGE WRAPPER & MAIN CONTENT (CRITICAL FIXES) --- */
+        .page-wrapper {
+            display: flex;
+            flex-grow: 1;
+            width: 100%;
+            padding-top: 62px;
+            flex-direction: column;
+            position: relative;
+            /* CRITICAL: Reference for #mainContentArea */
+        }
+
+        /* NEW WRAPPER: Ensures all views share a single vertical space */
+        #mainContentArea {
+            flex-grow: 1;
+            position: relative;
+            /* CRITICAL: Reference for absolute children */
+            width: 100%;
+            overflow-y: auto;
+            /* Allows scrolling if content exceeds height */
+        }
+
+
+        .main-content-top-aligned-view {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: stretch;
+            padding-top: 24px;
+            /* ✅ NORMAL spacing */
+        }
+
+
+
+        /* --- NEW CLASS: For views that should remain CENTERED (Transaction) --- */
+        .main-content-center-aligned-view {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+
+        /* REMOVING main-content-center as a container, using main-content-view instead */
+        .lottie-container {
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .lottie-container lottie-player {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            display: block;
+        }
+
+        /* --- 3. OFFCANVAS (SIDEBAR) STYLES --- */
+        .offcanvas {
+            background: var(--card);
+            border-right: 1px solid rgba(0, 0, 0, .1);
+            width: var(--sidebar-width) !important;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            padding-top: 10px;
+        }
+
+        .sidebar-nav .nav-item {
+            padding: 10px 15px;
+            margin-bottom: 5px;
+            text-decoration: none;
+            color: var(--text);
+            border-radius: 8px;
+            transition: background 0.2s;
+            font-size: 16px;
+        }
+
+        .sidebar-nav .nav-item i {
+            width: 20px;
+            margin-right: 10px;
+            color: var(--secondary-text);
+        }
+
+        .sidebar-nav .nav-item:hover,
+        .sidebar-nav .nav-item.active {
+            background: var(--brand);
+            color: white;
+        }
+
+        /* --- Flatpickr Styling for Theme Consistency --- */
+        .flatpickr-day.selected,
+        .flatpickr-day.selected:hover,
+        .flatpickr-day.selected:focus,
+        .flatpickr-day.startRange,
+        .flatpickr-day.endRange {
+            background: var(--brand) !important;
+            border-color: var(--brand) !important;
+            color: var(--text-inverse) !important;
+        }
+
+        .flatpickr-day.today {
+            border-color: var(--brand) !important;
+        }
+
+        /* Dark Mode Flatpickr styles if needed, should be handled by default theme */
+        body.dark .flatpickr-calendar {
+            background: var(--card);
+            color: var(--text);
+        }
+
+        /* --- Other Component Styles (Kept for completeness) --- */
+        .profile-wrapper {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .profile-circle {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--brand);
+            color: white;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-menu {
+            position: absolute;
+            top: 55px;
+            right: 0;
+            width: 260px;
+            background: var(--card);
+            border-radius: 14px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .profile-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 16px 16px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 5px;
+        }
+
+        body.dark .profile-header {
+            border-bottom-color: #334155;
+        }
+
+        .profile-big {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--brand);
+            color: white;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .profile-name {
+            font-weight: bold;
+            font-size: 16px;
+            color: var(--text);
+            text-align: center;
+        }
+
+        .profile-email {
+            font-size: 13px;
+            color: var(--secondary-text);
+            text-align: center;
+        }
+
+        .profile-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .profile-item:hover {
+            background: #e5e7eb;
+        }
+
+        body.dark .profile-item:hover {
+            background: #334155;
+        }
+
+        .profile-divider {
+            height: 1px;
+            background: #eee;
+            margin: 5px 0;
+        }
+
+        body.dark .profile-divider {
+            background: #334155;
+        }
+
+        .logout {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        .theme-toggle {
+            width: 46px;
+            height: 24px;
+            background: #cbd5f5;
+            border-radius: 50px;
+            position: relative;
+            transition: 0.3s;
+        }
+
+        .theme-toggle::before {
+            content: "";
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: 0.3s;
+        }
+
+        .theme-toggle.active {
+            background: var(--brand);
+        }
+
+        .theme-toggle.active::before {
+            transform: translateX(22px);
+        }
+
+        .input-group .form-control {
+            border-right: none;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .input-group-text {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            cursor: pointer;
+            background-color: var(--card);
+            border-color: #dee2e6;
+            color: var(--text);
+            padding: 0.5rem 0.75rem;
+        }
+
+        .btn-primary {
+            background-color: var(--brand);
+            border-color: var(--brand);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--brand);
+            border-color: var(--brand);
+        }
+
+        /* Should be managed by btn-no-hover */
+        .btn-danger-red {
+            background-color: var(--danger);
+            border-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger-red:hover {
+            background-color: #c82333;
+            border-color: #c82333;
+        }
+
+        .form-control.is-invalid {
+            border-color: var(--danger);
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: none;
+        }
+
+        .invalid-feedback {
+            display: block;
+            color: var(--danger);
+            font-size: 0.85em;
+            margin-top: 0.25rem;
+        }
+
+        /* New button for transaction */
+        .btn-add-transaction {
+            font-size: 1.1rem;
+            padding: 10px 25px;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* No Hover Color Fix */
+        .btn-no-hover {
+            background-color: var(--brand) !important;
+            border-color: var(--brand) !important;
+            color: white !important;
+            /* border-radius: 14px;  */
+            /* transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); */
+        }
+
+        .btn-no-hover:hover,
+        .btn-no-hover:active,
+        .btn-no-hover:focus {
+            background-color: var(--brand) !important;
+            /* Force original color */
+            border-color: var(--brand) !important;
+            color: white !important;
+            /* transform: scale(1.02); */
+            /* box-shadow: 0 8px 20px rgba(var(--brand-rgb), 0.3) !important; */
+        }
+
+
+        /* ===== SECTION DIVIDER ===== */
+        .section-divider {
+            border: none;
+            height: 1px;
+            /* margin: 36px 0; */
+            /* background: linear-gradient(
+        to right,
+        transparent,
+        rgba(0,0,0,0.15),
+        transparent
+    ); */
+        }
+
+        /* ===== RECENT TRANSACTIONS TABLE ===== */
+        .recent-table-container {
+            max-height: none;
+            overflow-y: visible;
+            padding: 4px 0;
+            border-top: 1px solid rgba(0, 0, 0, 0.12);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+        }
+
+        /* Sticky header */
+        .recent-table thead th {
+            position: sticky;
+            top: 0;
+            background: var(--bg);
+            z-index: 10;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            /* color: var(--secondary-text); */
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        /* Row separation */
+        .recent-table tbody tr:not(:last-child) td {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        /* Hover */
+        .recent-table tbody tr:hover {
+            background: rgba(var(--brand-rgb), 0.04);
+        }
+
+        /* Income / Expense */
+        .recent-income {
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .recent-expense {
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        /* Notes truncate */
+        .recent-table td:nth-child(5) {
+            max-width: 180px;
+            white-space: normal;
+            overflow: visible;
+            word-wrap: break-word;
+            text-overflow: ellipsis;
+            /* color: var(--secondary-text); */
+        }
+
+        /* Action buttons wrapper */
+        .action-btn-group {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Individual buttons */
+        .action-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Edit */
+        .action-btn.edit-btn {
+            color: #2563eb;
+            border-color: rgba(37, 99, 235, 0.4);
+        }
+
+        /* Delete */
+        .action-btn.delete-btn {
+            color: #dc2626;
+            border-color: rgba(220, 38, 38, 0.4);
+        }
+
+        /* Mobile touch-friendly */
+        @media (max-width: 768px) {
+            .action-btn {
+                width: 38px;
+                height: 38px;
+            }
+        }
+
+        #welcomeScreen {
+            transition: opacity 0.5s ease;
+        }
+
+        #dashboardCenterView #welcomeScreen {
+            max-width: 720px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+        }
+
+
+
+
+        /* === DASHBOARD STAT CARDS === */
+
+        .stat-card {
+            height: 100%;
+            border: none;
+            border-radius: 16px;
+            padding: 22px 24px;
+            background: #ffffff;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Text */
+        .stat-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .stat-card h3 {
+            font-size: 26px;
+            font-weight: 700;
+            margin: 0;
+            color: #111827;
+        }
+
+        /* Icon */
+        .icon-box {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        /* Icon Colors */
+        .income-icon {
+            background: #16a34a;
+        }
+
+        .expense-icon {
+            background: #dc2626;
+        }
+
+        .balance-icon {
+            background: #4f46e5;
+        }
+
+        /* Subtle gradient backgrounds */
+        .income-card {
+            background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 70%);
+        }
+
+        .expense-card {
+            background: linear-gradient(135deg, #fef2f2 0%, #ffffff 70%);
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, #eef2ff 0%, #ffffff 70%);
+        }
+
+        /* Mobile tuning */
+        @media (max-width: 576px) {
+            .stat-card {
+                padding: 18px;
+            }
+
+            .stat-card h3 {
+                font-size: 22px;
+            }
+
+            .icon-box {
+                width: 46px;
+                height: 46px;
+                font-size: 18px;
+            }
+        }
+
+        /* Dashboard Pagination */
+        #dashboardTransactionPagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        #dashboardTransactionPagination .page-item .page-link {
+            font-size: 18px;
+            background: transparent;
+            border: none;
+            padding: 4px 8px;
+            cursor: pointer;
+        }
+
+        #dashboardTransactionPagination .page-item .page-link:hover {
+            color: #000;
+        }
+
+        #dashboardTransactionPagination .page-item.disabled .page-link {
+            cursor: not-allowed;
+            color: #ccc;
+        }
+
+        /* FILTER PAGINATION – MATCH DASHBOARD STYLE */
+#filteredTransactionPagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    list-style: none;
+    padding: 0;
+}
+
+#filteredTransactionPagination .page-link {
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    padding: 4px 8px;
+    color: #000;
+}
+
+#filteredTransactionPagination .page-item.active .page-link {
+    background: var(--brand);
+    color: #fff;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+#filteredTransactionPagination .page-item.disabled .page-link {
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+.today-badge {
+    background: #ff9800;
+    color: white;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+
+    </style>
+</head>
+
+<body>
+
+    <canvas id="partyCanvas"
+        style="position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:99999;"></canvas>
+
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel">
+
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">Navigation</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"
+                data-bs-target="#sidebarOffcanvas"></button>
+        </div>
+
+        <div class="offcanvas-body">
+            <div class="sidebar-nav">
+                <a href="#" class="nav-item active" id="dashboardLink" onclick="showDashboardViewFromSidebar()"><i
+                        class="fa-solid fa-gauge-high"></i> Dashboard</a>
+
+                <a href="#" class="nav-item" id="transactionLink" onclick="showTransactionCenterFromSidebar()">
+                    <i class="fa-solid fa-file-circle-plus"></i> Add Transactions
+                </a>
+
+                <a href="#" class="nav-item" id="dateFilterLink" onclick="showDateFilterFromSidebar()">
+                    <i class="fa-solid fa-filter"></i> Filter Transactions
+                </a>
+
+            </div>
+
+        </div>
+
+            <div class="sidebar-footer text-center mb-2" style="font-size: 12px; color: #888;">
+                &copy; Jambavan IT Solution
+            </div>
+    </div>
+
+    <div class="page-wrapper">
+
+        <div class="topbar">
+
+            <span class="menu-toggle" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas"
+                aria-controls="sidebarOffcanvas">
+                <i class="fa-solid fa-bars"></i>
+            </span>
+
+            <div class="brand">Jambavan Finance</div>
+
+            <div class="profile-section">
+                <div class="profile-wrapper" onclick="toggleProfileMenu()">
+                    <div class="profile-circle" id="profileInitial">K</div>
+
+                    <div class="profile-menu" id="profileMenu">
+                        <div class="profile-header">
+                            <div class="profile-big" id="profileBig">K</div>
+                            <div>
+                                <div class="profile-name" id="profileName">Admin</div>
+                                <div class="profile-email" id="profileEmail">@admin</div>
+                            </div>
+                        </div>
+
+                        <div class="profile-item" data-bs-toggle="modal" data-bs-target="#createAdminModal">
+                            <span><i class="fa-solid fa-user-plus me-2"></i> Create New Admin</span>
+                        </div>
+
+                        <!-- <div class="profile-item" onclick="toggleTheme()">
+                            <span id="themeText">
+                                <i class="fa-solid fa-moon me-2" id="themeIcon"></i> Dark Mode
+                            </span>
+                            <div class="theme-toggle" id="themeToggle"></div>
+                        </div> -->
+
+                        <div class="profile-divider"></div>
+
+                        <div class="profile-item logout" onclick="logoutAdmin()">
+                            <span><i class="fa-solid fa-right-from-bracket me-2"></i> Log out</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="mainContentArea">
+
+            <div id="transactionCenterView" class="main-content-center-aligned-view" style="display:none;">
+
+                <div class="card shadow-sm border-0" style="max-width:480px; width:100%;">
+
+                    <div class="card-body text-center p-4">
+
+                        <!-- Icon -->
+                        <div class="mb-3">
+                            <i class="fa-solid fa-file-invoice-dollar" style="font-size:48px; color: var(--brand);"></i>
+                        </div>
+
+                        <!-- Title -->
+                        <h5 class="fw-semibold mb-1">Add Transaction</h5>
+
+                        <!-- Subtitle -->
+                        <p class="text-muted mb-4" style="font-size:14px;">
+                            Maintain accurate income and expense records
+                        </p>
+
+                        <!-- Action -->
+                        <button class="btn btn-no-hover px-4 py-2" onclick="openTransactionModalFromCenter()">
+                            <i class="fa-solid fa-plus me-2"></i>
+                            Add Transaction
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+
+
+            <div id="dashboardCenterView" class="main-content-top-aligned-view">
+
+                <!-- WELCOME SCREEN -->
+                <div id="welcomeScreen" class="lottie-container text-center mt-4 mb-5">
+                    <lottie-player id="welcomeLottie" src="images/girl_say_hi.json" background="transparent" speed="1"
+                        style="width: 200px; height: 200px;" loop autoplay>
+                    </lottie-player>
+
+                    <h2 class="display-6">Welcome to Admin Panel</h2>
+                    <p id="welcomeText" class="lead text-secondary-text mb-2">Hello, Admin 👋</p>
+                    <p class="small text-secondary-text">
+                        Your financial overview and administrative tools are accessible through the top bar and side
+                        bar.
+                    </p>
+                </div>
+
+                <!-- DASHBOARD CONTENT (Hidden initially) -->
+                <div id="dashboardContent" style="display:none;">
+
+
+                    <!-- OVERALL SUMMARY -->
+                    <div class="container-fluid px-4">
+                        <div class="row g-3 mb-4 align-items-stretch">
+
+                            <div class="col-xl-4 col-lg-4 col-md-6 col-12">
+                                <div class="card stat-card income-card">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <p class="stat-label">Total Income</p>
+                                            <h3 id="totalIncome">₹0</h3>
+                                        </div>
+                                        <div class="icon-box income-icon">
+                                            <i class="fa-solid fa-arrow-trend-up"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-4 col-lg-4 col-md-6 col-12">
+                                <div class="card stat-card expense-card">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <p class="stat-label">Total Expense</p>
+                                            <h3 id="totalExpense">₹0</h3>
+                                        </div>
+                                        <div class="icon-box expense-icon">
+                                            <i class="fa-solid fa-arrow-trend-down"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-4 col-lg-4 col-md-12 col-12">
+                                <div class="card stat-card balance-card">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <p class="stat-label">Net Balance</p>
+                                            <h3 id="netBalance">₹0</h3>
+                                        </div>
+                                        <div class="icon-box balance-icon">
+                                            <i class="fa-solid fa-wallet"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- TRANSACTIONS SECTION -->
+                        <div class="container-fluid px-4 mt-4">
+                            <h5 class="mb-3">All Transactions</h5>
+
+                            <div id="dashboardTableLoader" class="text-center my-4 d-none">
+    <div class="spinner-border text-primary"></div>
+</div>
+
+
+                            <!-- TRANSACTIONS TABLE -->
+                            <div class="table-responsive recent-table-container">
+                                <table class="table recent-table align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Type</th>
+                                            <th>Category</th>
+                                            <th>Amount</th>
+                                            <th>Notes</th>
+                                            <th class="text-end">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dashboardTransactionTbody">
+                                        <!-- Backend data injected here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- PAGINATION -->
+                        <nav class="mt-3">
+                            <ul class="pagination justify-content-center" id="dashboardTransactionPagination"></ul>
+                        </nav>
+                    </div>
+
+                </div>
+
+
+            </div>
+
+            <div id="dateFilterView" class="main-content-top-aligned-view" style="display:none;">
+
+                <h5 class=" fw-semibold mb-4" style="text-align: center;">Filter Transactions</h5>
+
+                <div id="dashboardDateFilter">
+                    <div class="container-fluid px-4 mb-4">
+                        <div class="row g-3 align-items-end">
+
+                            <!-- FROM DATE -->
+                            <div class="col-md-3 col-sm-6">
+                                <label class="form-label">From Date</label>
+                                <input type="text" id="fromDate" class="form-control" placeholder="Select start date"
+                                    readonly>
+                            </div>
+
+                            <!-- TO DATE -->
+                            <div class="col-md-3 col-sm-6">
+                                <label class="form-label">To Date</label>
+                                <input type="text" id="toDate" class="form-control" placeholder="Select end date"
+                                    readonly>
+                            </div>
+
+                            <!-- TYPE -->
+                            <div class="col-md-3 col-sm-6">
+                                <label class="form-label">Type</label>
+                                <select id="filterType" class="form-select">
+                                    <option value="">Both</option>
+                                    <option value="income">Income</option>
+                                    <option value="expense">Expense</option>
+                                </select>
+                            </div>
+
+                            <!-- APPLY BUTTON -->
+                            <div class="col-md-3 col-sm-6 d-grid">
+                                <button class="btn btn-no-hover" onclick="applyDateFilter()">
+                                    <i class="fa-solid fa-filter me-2"></i> Apply
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- FILTERED TABLE SECTION -->
+                <div class="container-fluid px-4 mt-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="fw-semibold mb-0">Filtered Transactions</h6>
+
+                                <button id="downloadPdfBtn" class="btn btn-sm btn-outline-danger d-none"
+                                    onclick="downloadFilteredPdf()">
+                                    <i class="fa-solid fa-file-pdf me-1"></i> Download PDF
+                                </button>
+                            </div>
+
+                            <div id="FilterTableLoader" class="text-center my-4 d-none">
+                                <div class="spinner-border text-primary"></div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Type</th>
+                                            <th>Category</th>
+                                            <th>Amount</th>
+                                            <th>Notes</th>
+                                            <th class="text-end">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="filteredTransactionTbody">
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">
+                                                Apply filter to view transactions
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <nav class="mt-3">
+                            <ul class="pagination justify-content-center" id="filteredTransactionPagination"></ul>
+                        </nav>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    </div>
+
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999">
+        <div id="toast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive"
+            aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="toastMsg"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999">
+        <div id="danger-toast" class="toast align-items-center text-bg-danger border-0" role="alert"
+            aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="dangerToastMsg"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="createAdminModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <i class="fa-solid fa-user-plus me-2"></i>
+                    <h5 class="modal-title">Create New Admin</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createAdminForm">
+                        <div class="mb-3">
+                            <input class="form-control" placeholder="First Name (Required)" id="newFirst" required>
+                            <div class="invalid-feedback" id="newFirst-feedback"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <input class="form-control" placeholder="Last Name (Required)" id="newLast" required>
+                            <div class="invalid-feedback" id="newLast-feedback"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <input type="email" class="form-control" placeholder="Email (user@domain.com)" id="newEmail"
+                                required>
+                            <div class="invalid-feedback" id="newEmail-feedback"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <input type="tel" class="form-control" placeholder="Mobile (10 Digits)" id="newMobile"
+                                required>
+                            <div class="invalid-feedback" id="newMobile-feedback"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <input type="password" class="form-control" placeholder="Password (Min 8 chars, strong)"
+                                    id="newPass" required>
+                                <span class="input-group-text"
+                                    onclick="togglePasswordVisibility('newPass', 'toggleNewAdminPass')">
+                                    <i class="fa-solid fa-eye" id="toggleNewAdminPass"></i>
+                                </span>
+                            </div>
+                            <div class="invalid-feedback" id="newPass-feedback"></div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger-red" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-no-hover" form="createAdminForm"
+                        onclick="createAdmin(event)">Create Admin</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addTransactionModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fa-solid fa-circle-plus me-2"></i> Add New Transaction</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addTransactionForm" novalidate>
+                        <div class="mb-3">
+                            <label for="transactionType" class="form-label">Transaction Type</label>
+                            <select class="form-select" id="transactionType" required>
+                                <option value="">Select Type</option>
+                                <option value="income">Varavu (Income)</option>
+                                <option value="expense">Selavu (Expense)</option>
+                            </select>
+                            <div class="invalid-feedback" id="transactionType-feedback"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="transactionDateInput" class="form-label">Transaction Date</label>
+                            <input type="text" class="form-control" id="transactionDateInput" placeholder="Select Date"
+                                required>
+                            <div class="invalid-feedback" id="transactionDateInput-feedback"></div>
+                        </div>
+
+
+                        <div class="mb-3">
+                            <label for="transactionCategory" class="form-label">Category</label>
+                            <input class="form-control" placeholder="e.g., Salary, Rent, Groceries"
+                                id="transactionCategory" required>
+                            <div class="invalid-feedback" id="transactionCategory-feedback"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="transactionAmount" class="form-label">Amount</label>
+                            <input type="number" class="form-control" placeholder="Enter Amount" id="transactionAmount"
+                                required min="0.01" step="0.01">
+                            <div class="invalid-feedback" id="transactionAmount-feedback"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="transactionNotes" class="form-label">Notes (Optional)</label>
+                            <textarea class="form-control" id="transactionNotes" rows="2"
+                                placeholder="Brief description"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger-red" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-no-hover" form="addTransactionForm">Save Transaction</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+
+    <script src="dashboard.js" defer></script>
+</body>
+
+</html>

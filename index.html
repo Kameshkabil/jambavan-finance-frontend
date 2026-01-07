@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="images/jambavan.jpeg">
+
+    <title>Jambavan Finance - Admin Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+      :root {
+    --primary: #06d1e4;
+    --primary-dark: #04b7c9;
+    --bg: #f6f7fb;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --border: #dfe3ea;
+    --danger: #dc3545;
+}
+
+body {
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    padding: 16px;
+}
+
+
+/* FLAT CONTAINER */
+.auth-container {
+    width: 100%;
+    max-width: 420px;
+    padding: 24px 16px;
+}
+
+/* BRAND */
+.branding i {
+    font-size: 32px;
+    color: var(--primary);
+}
+
+.branding h3 {
+    font-weight: 600;
+    color: var(--text);
+    margin-top: 6px;
+}
+
+/* LABELS */
+.form-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+}
+
+/* INPUTS */
+.form-control {
+    border-radius: 6px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: none;
+}
+
+/* PASSWORD TOGGLE */
+.input-group-text {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-left: none;
+    cursor: pointer;
+}
+
+/* BUTTON */
+.btn-primary-corporate {
+    background: var(--primary);
+    border: none;
+    border-radius: 6px;
+    padding: 10px;
+    font-weight: 500;
+}
+
+.btn-primary-corporate:hover {
+    background: var(--primary-dark);
+}
+
+/* LINKS */
+a {
+    color: var(--primary);
+    font-size: 13px;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* ERROR */
+.invalid-feedback {
+    font-size: 12px;
+    color: var(--danger);
+}
+
+/* MOBILE */
+@media (max-width: 480px) {
+    .auth-container {
+        padding: 16px 12px;
+    }
+}
+
+/* BRAND ICON */
+.brand-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto;
+    border-radius: 50%;
+    border: 1.5px solid var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.brand-icon i {
+    font-size: 24px;
+    color: var(--primary);
+}
+
+/* TITLE */
+.branding h3 {
+    font-weight: 600;
+    letter-spacing: .3px;
+}
+
+.input-group + .invalid-feedback {
+    display: block;
+}
+
+.input-group .form-control.is-invalid {
+    border-color: var(--danger);
+}
+
+
+    </style>
+</head>
+<body>
+
+<div class="auth-container">
+    
+   <div class="branding text-center mb-3">
+    <div class="brand-icon">
+        <i class="fa-solid fa-building-shield"></i>
+    </div>
+    <h3 class="mt-2">Jambavan Finance</h3>
+    <small class="text-muted">Corporate Admin Access</small>
+</div>
+
+
+    <form id="loginForm" novalidate>
+        
+        <div class="mb-3">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="emailLogin" class="form-control" required placeholder="admin@example.com">
+            <div class="invalid-feedback" id="emailLogin-feedback"></div>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label">Password</label>
+            
+            <div class="input-group">
+                <input type="password" id="passwordLogin" class="form-control" required placeholder="••••••••">
+                <span class="input-group-text" onclick="togglePasswordVisibility('passwordLogin', 'toggleLoginPass')">
+                    <i class="fa-solid fa-eye" id="toggleLoginPass"></i>
+                </span>
+            </div>
+            <div class="invalid-feedback" id="passwordLogin-feedback"></div>
+        </div>
+
+        <button type="submit" class="btn btn-primary-corporate w-100">
+            <i class="fa-solid fa-lock me-2"></i> Log In to Dashboard
+        </button>
+
+        <p class="text-center mt-4 mb-0">
+            <a href="#" onclick="showForgotForm()">Forgot Password?</a>
+        </p>
+    </form>
+
+    <form id="forgotForm" style="display:none;" novalidate>
+        <h3 class="h4 text-center mb-4">Reset Password</h3>
+
+        <div class="mb-4">
+            <label class="form-label">Enter your Email</label>
+            <input type="email" id="forgotEmail" class="form-control" required placeholder="admin@example.com">
+            <div class="invalid-feedback" id="forgotEmail-feedback"></div>
+        </div>
+
+        <button type="submit" class="btn btn-primary-corporate w-100">
+            <i class="fa-solid fa-paper-plane me-2"></i> Send Reset Link
+        </button>
+
+        <p class="text-center mt-4 mb-0">
+            <a href="#" onclick="showLogin()">← Back to Login</a>
+        </p>
+    </form>
+
+</div>
+
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 9999">
+    <div id="toast" class="toast text-bg-success">
+        <div class="toast-body" id="toastMsg"></div>
+    </div>
+</div>
+
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 9999">
+    <div id="danger-toast" class="toast text-bg-danger">
+        <div class="toast-body" id="dangerToastMsg"></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+const loginForm = document.getElementById("loginForm");
+const forgotForm = document.getElementById("forgotForm");
+const emailLogin = document.getElementById("emailLogin");
+const passwordLogin = document.getElementById("passwordLogin");
+const forgotEmail = document.getElementById("forgotEmail");
+
+// --- Helper Functions ---
+
+function togglePasswordVisibility(fieldId, iconId) {
+    const field = document.getElementById(fieldId);
+    const icon = document.getElementById(iconId);
+    if (field.type === "password") {
+        field.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+    } else {
+        field.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+    }
+}
+
+function showToast(msg) {
+    document.getElementById("toastMsg").innerText = msg;
+    new bootstrap.Toast(document.getElementById("toast")).show();
+}
+
+function showDangerToast(msg) {
+    document.getElementById("dangerToastMsg").innerText = msg;
+    new bootstrap.Toast(document.getElementById("danger-toast")).show();
+}
+
+// --- Validation Core ---
+
+function setError(id, message) {
+    const input = document.getElementById(id);
+    const feedback = document.getElementById(id + '-feedback');
+    input.classList.add('is-invalid');
+    feedback.innerText = message;
+}
+
+function clearError(id) {
+    const input = document.getElementById(id);
+    const feedback = document.getElementById(id + '-feedback');
+    input.classList.remove('is-invalid');
+    feedback.innerText = '';
+}
+
+function validateEmail(email) {
+    // Basic but forgiving regex: check for @ and domain.
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/; 
+    if (!email) {
+        return "Email address is required.";
+    }
+    if (email.indexOf('@') === -1) {
+        return "Email must contain the '@' symbol.";
+    }
+    if (!emailRegex.test(email)) {
+        return "Please enter a valid email address (e.g., user@domain.com).";
+    }
+    return true;
+}
+
+
+// --- Form Validation Handlers ---
+
+function validateLoginForm() {
+    let isValid = true;
+    clearError("emailLogin");
+    clearError("passwordLogin");
+
+    const email = emailLogin.value.trim();
+    const password = passwordLogin.value;
+
+    const emailCheck = validateEmail(email);
+
+    if (emailCheck !== true) {
+        setError("emailLogin", emailCheck);
+        isValid = false;
+    }
+
+    if (!password) {
+        setError("passwordLogin", "Password is required.");
+        isValid = false;
+    }
+
+    return isValid;
+}
+
+function validateForgotForm() {
+    let isValid = true;
+    clearError("forgotEmail");
+
+    const email = forgotEmail.value.trim();
+    const emailCheck = validateEmail(email);
+
+    if (emailCheck !== true) {
+        setError("forgotEmail", emailCheck);
+        isValid = false;
+    }
+
+    return isValid;
+}
+
+// --- UI Switch ---
+
+function showForgotForm() {
+    loginForm.style.display = "none";
+    forgotForm.style.display = "block";
+    forgotEmail.value = emailLogin.value;
+    // Clear validation when switching forms
+    clearError("emailLogin");
+    clearError("passwordLogin");
+}
+
+function showLogin() {
+    forgotForm.style.display = "none";
+    loginForm.style.display = "block";
+    // Clear validation when switching forms
+    clearError("forgotEmail");
+}
+
+
+// --- API Handlers ---
+
+// LOGIN API
+loginForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    if (!validateLoginForm()) {
+        showDangerToast("Please correct the login details.");
+        return;
+    }
+
+    const email = emailLogin.value.trim();
+    const password = passwordLogin.value;
+    
+    try {
+        const res = await fetch("https://jambavan-finance-backend.onrender.com/api/user/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("tokenData", JSON.stringify({
+                firstname: data.firstname,
+                email: data.email
+            }));
+
+            showToast("Welcome to Dashboard");
+            
+            setTimeout(() => {
+                window.location.href = "dashboard.html"; 
+            }, 500);
+            
+        } else {
+            showDangerToast(data.message || "Login Failed. Check credentials.");
+        }
+
+    } catch (err) {
+        showDangerToast("Connection/Server error. Check API endpoint.");
+    }
+});
+
+// FORGOT PASSWORD API
+forgotForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    if (!validateForgotForm()) {
+        showDangerToast("Please enter a valid email to receive the reset link.");
+        return;
+    }
+
+    const email = forgotEmail.value.trim();
+    
+    try {
+        const res = await fetch("https://jambavan-finance-backend.onrender.com/api/user/forgot-password-token", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            showToast("Reset link sent to your email!");
+            forgotForm.reset();
+            showLogin();
+        } else {
+            showDangerToast(data.message || "Password reset failed. User not found.");
+        }
+
+    } catch (err) {
+        showDangerToast("Connection/Server error. Check API endpoint.");
+    }
+});
+</script>
+
+</body>
+</html>
