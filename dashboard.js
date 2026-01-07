@@ -286,6 +286,7 @@ function clearError(id) {
     feedback.innerText = '';
 }
 
+const loader = document.getElementById('loader-container');
 // --- CREATE ADMIN LOGIC (Original) ---
 function validateCreateAdminForm() {
     let isValid = true;
@@ -327,6 +328,8 @@ async function createAdmin(e) {
         mobile: validatedPayload.newMobile, password: validatedPayload.newPass, role: "admin" 
     };
 
+    loader.style.display = 'flex';
+
     try {
         const token = localStorage.getItem("token");
         if (!token) { 
@@ -363,7 +366,9 @@ async function createAdmin(e) {
             modalInstance.hide();
         } else { showDangerToast(data.message || "Admin creation failed."); }
 
-    } catch (err) { showDangerToast("Network error: Could not reach the server."); }
+    } catch (err) { showDangerToast("Network error: Could not reach the server."); } finally{
+        loader.style.display = 'none';
+    }
 }
 
 document.getElementById('createAdminModal').addEventListener('hidden.bs.modal', function () {
@@ -444,6 +449,8 @@ async function addTransaction(e) {
 
     const method = isEditMode ? "PUT" : "POST";
 
+    loader.style.display = 'flex';
+
     try {
         const res = await fetch(url, {
             method,
@@ -483,6 +490,8 @@ async function addTransaction(e) {
 
     } catch (err) {
         showDangerToast("Network error: Could not save transaction.");
+    } finally {
+        loader.style.display = 'none';
     }
 }
 
