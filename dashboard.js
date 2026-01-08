@@ -955,7 +955,8 @@ function calculateTotals(data) {
 }
 
 function downloadFilteredPdf() {
-    const { jsPDF } = window.jspdf;
+    try {
+        const { jsPDF } = window.jspdf;
     const doc = new jsPDF("p", "mm", "a4");
     const pageWidth = doc.internal.pageSize.getWidth();
     const margin = 14;
@@ -1068,6 +1069,10 @@ function downloadFilteredPdf() {
     }
 
     doc.save("Jambavan_Transaction_Report.pdf");
+    showToast("Transaction report downloaded successfully");
+    } catch(e) {
+        showDangerToast("Failed to download transaction report");
+    }
 }
 
 
